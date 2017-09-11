@@ -21,45 +21,58 @@ maxlen = 100
 n_iterations = 1  # ideally more..
 n_exposures = 10
 window_size = 7
-# batch_size = 32
-# n_epoch = 4
+
 input_length = 100
 cpu_count = multiprocessing.cpu_count()
 
 
 class ProcessData():
 
-    def __init__(self):
+    def __init__(self, trainPath, w2vModelPath):
 
-        self.posnegPath = "../Data/input_game/sentimentdata.csv"
-        self.neuPath = "../Data/input_game/neutralData.csv"
-        self.w2vModelPath = "model/word2vecmodel.m"
-        self.vocabmaxlen = 200
+        self.tranPath = trainPath
+        self.w2vModelPath = w2vModelPath
+        self.vocabmaxlen = 100
+
 
 
     def loadData(self):
-        data = pd.read_csv(self.posnegPath, sep="\t")
-        data = data.dropna()
+        data = pd.read_csv(self.tranPath, sep="\t")
+        trainX = data["text"]
+        trainY = []
+        for score in list(data["score"]):
+            if score == 0:
+                trainY.append([1, 0, 0])
+            elif score == 1:
+                trainY.append([0, 1, 0])
+            else:
+                trainY.append([0, 0, 1])
+        return  trainX, np.array(trainY)
 
-        data = data.drop_duplicates()
 
-        posData = data[data.score > 0]
-        negData = data[data.score < 0]
-        neuData = pd.read_csv(self.neuPath)
-
-
-        posData["text"] = posData.apply(lambda x: str(x["title"]) + " " + str(x["content"]), axis=1)
-        negData["text"] = negData.apply(lambda x: str(x["title"]) + " " + str(x["content"]), axis=1)
-
-        trainX = np.concatenate((posData["text"], negData["text"], neuData["content"]))
-
-        posLabel = [[1, 0, 0] for _ in posData["text"]]
-        negLabel = [[0, 1, 0] for _ in negData["text"]]
-        neuLabel = [[0, 0, 1] for _ in neuData["content"]]
-        y = np.concatenate([posLabel, negLabel, neuLabel], 0)
-
-        trainX = [self.replaceStrangeStr(x) for x in trainX]
-        return trainX, y
+    # def loadData(self):
+    #     data = pd.read_csv(self.posnegPath, sep="\t")
+    #     data = data.dropna()
+    #
+    #     data = data.drop_duplicates()
+    #
+    #     posData = data[data.score > 0]
+    #     negData = data[data.score < 0]
+    #     neuData = pd.read_csv(self.neuPath)
+    #
+    #
+    #     posData["text"] = posData.apply(lambda x: str(x["title"]) + " " + str(x["content"]), axis=1)
+    #     negData["text"] = negData.apply(lambda x: str(x["title"]) + " " + str(x["content"]), axis=1)
+    #
+    #     trainX = np.concatenate((posData["text"], negData["text"], neuData["content"]))
+    #
+    #     posLabel = [[1, 0, 0] for _ in posData["text"]]
+    #     negLabel = [[0, 1, 0] for _ in negData["text"]]
+    #     neuLabel = [[0, 0, 1] for _ in neuData["content"]]
+    #     y = np.concatenate([posLabel, negLabel, neuLabel], 0)
+    #
+    #     trainX = [self.replaceStrangeStr(x) for x in trainX]
+    #     return trainX, y
 
     def replaceStrangeStr(self,rawstr):
         newstr = rawstr.replace("<br>"," ")\
@@ -106,7 +119,7 @@ class ProcessData():
         embedding_weights = np.zeros((n_symbols, vocab_dim))  # 索引为0的词语，词向量全为0
         for word, index in w2indx.items():  # 从索引为1的词语开始，对每个词语对应其词向量
             embedding_weights[index, :] = w2vec[word]
-        x_train, x_test, y_train, y_test = train_test_split(trainX, Y, test_size=0.05)
+        x_train, x_test, y_train, y_test = train_test_split(trainX, Y, test_size=0.10)
 
         print "embedding_weights",len(embedding_weights),len(embedding_weights[0])
 

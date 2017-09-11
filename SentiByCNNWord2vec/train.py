@@ -5,35 +5,28 @@
 
 
 import tensorflow as tf
-import numpy as np
 import os
 import time
 import datetime
-# import data_helpers
 from text_cnn import TextCNN
 from tensorflow.contrib import learn
-from sklearn.model_selection import train_test_split
-# import gameprocessData
 import gc
-import w2vProcessData
+import processData
 
 
 
 # Parameters
 # ==================================================
 
-import jieba
+rootPath = "/mnt/hgfs/data/senitment_data"
+train_path = os.path.join(rootPath, "train.csv")
+word2vecPath = os.path.join(rootPath, "model/word2vecmodel.m")
 
-pos_dir = "./data/rt-polaritydata/rt-polarity.pos"
-neg_dir = "./data/rt-polaritydata/rt-polarity.neg"
-
-ch_pos_dir = "../Data/input/pos.xls"
-ch_neg_dir = "../Data/input/neg.xls"
+print train_path
+print word2vecPath
 
 # Data loading params
 tf.flags.DEFINE_float("dev_sample_percentage", .05, "Percentage of the training data to use for validation")
-tf.flags.DEFINE_string("positive_data_file", ch_pos_dir, "Data source for the positive data.")
-tf.flags.DEFINE_string("negative_data_file", ch_neg_dir, "Data source for the negative data.")
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("embedding_dim", 100, "Dimensionality of character embedding (default: 128)")
@@ -44,7 +37,7 @@ tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 
 
 # Training parameters
 tf.flags.DEFINE_integer("batch_size", 128, "Batch Size (default: 64)")
-tf.flags.DEFINE_integer("num_epochs", 10, "Number of training epochs (default: 200)")
+tf.flags.DEFINE_integer("num_epochs", 15, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
 tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 5, "Number of checkpoints to store (default: 5)")
@@ -66,9 +59,7 @@ print("")
 # Load data
 print("Loading data...")
 
-#
-# print("Vocabulary Size: {:d}".format(len(vocab_processor.vocabulary_)))
-dataclass = w2vProcessData.ProcessData()
+dataclass = processData.ProcessData(train_path, word2vecPath)
 embedding_weights, x_train, x_dev, y_train, y_dev = dataclass.getTrainData()
 
 print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
@@ -118,7 +109,7 @@ with tf.Graph().as_default():
                 .split(".")[0]
 
 
-        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", curTime()))
+        out_dir = os.path.abspath(os.path.join(rootPath, "runs", curTime()))
         print("Writing to {}\n".format(out_dir))
 
         # Summaries for loss and accuracy
@@ -151,7 +142,7 @@ with tf.Graph().as_default():
 
 
 
-        def train_step(x_batch, y_batch):
+        def train_step(x_batch, y_batch, cur_epoch):
             """
             A single training step
             """
@@ -160,11 +151,11 @@ with tf.Graph().as_default():
               cnn.input_y: y_batch,
               cnn.dropout_keep_prob: FLAGS.dropout_keep_prob
             }
-            _, step, summaries, loss, accuracy = sess.run(
+            _, step,summaries, loss, accuracy = sess.run(
                 [train_op, global_step, train_summary_op, cnn.loss, cnn.accuracy],
                 feed_dict)
             time_str = datetime.datetime.now().isoformat()
-            print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
+            print("{}: epoch {},step {}, loss {:g}, acc {:g}".format(time_str, cur_epoch, step, loss, accuracy))
             train_summary_writer.add_summary(summaries, step)
 
         def dev_step(x_batch, y_batch, writer=None):
@@ -183,6 +174,7 @@ with tf.Graph().as_default():
             print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
             if writer:
                 writer.add_summary(summaries, step)
+            return accuracy,loss
 
         # Generate batches
         batches = dataclass.batch_iter(
@@ -191,17 +183,40 @@ with tf.Graph().as_default():
         num_batches_per_epoch = int((len(list(zip(x_train, y_train))) - 1) / FLAGS.batch_size) + 1
         print "num_batches_per_epoch", num_batches_per_epoch
 
+        # for batch in batches:
+        #     x_batch, y_batch = zip(*batch)
+        #     train_step(x_batch, y_batch)
+        #     current_step = tf.train.global_step(sess, global_step)
+        #     if current_step % num_batches_per_epoch == 0:
+        #         print ("Epoch is {} ......".format(current_step / num_batches_per_epoch))
+        #
+        #     if current_step % FLAGS.evaluate_every == 0:
+        #         print("\nEvaluation:")
+        #         dev_step(x_dev, y_dev, writer=dev_summary_writer)
+        #         print("")
+        #     if current_step % FLAGS.checkpoint_every == 0:
+        #         path = saver.save(sess, checkpoint_prefix, global_step=current_step)
+        #         print("Saved model checkpoint to {}\n".format(path))
+
+
+
+        max_acc = 0
+        best_at_step = 0
         for batch in batches:
             x_batch, y_batch = zip(*batch)
-            train_step(x_batch, y_batch)
             current_step = tf.train.global_step(sess, global_step)
-            if current_step % num_batches_per_epoch == 0:
-                print ("Epoch is {} ......".format(current_step / num_batches_per_epoch))
+            cur_epoch = current_step / num_batches_per_epoch + 1
+            train_step(x_batch, y_batch, cur_epoch)
 
             if current_step % FLAGS.evaluate_every == 0:
                 print("\nEvaluation:")
-                dev_step(x_dev, y_dev, writer=dev_summary_writer)
+                acc_dev, _ = dev_step(x_dev, y_dev, writer=dev_summary_writer)
+                if acc_dev >= max_acc:
+                    max_acc = acc_dev
+                    best_at_step = current_step
+                    path = saver.save(sess, checkpoint_prefix, global_step=current_step)
                 print("")
             if current_step % FLAGS.checkpoint_every == 0:
-                path = saver.save(sess, checkpoint_prefix, global_step=current_step)
-                print("Saved model checkpoint to {}\n".format(path))
+                print 'Best of valid = {}, at step {}'.format(max_acc, best_at_step)
+
+        saver.restore(sess, checkpoint_prefix + '-' + str(best_at_step))

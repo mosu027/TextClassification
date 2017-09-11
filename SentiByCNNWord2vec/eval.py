@@ -6,32 +6,38 @@
 
 import tensorflow as tf
 import numpy as np
-import os
-import time
-import datetime
-from text_cnn import TextCNN
-from tensorflow.contrib import learn
-import csv
-import jieba
 import pandas as pd
+import os
+
 import sys
-import w2vProcessData
-from connecthive import connecthive
+import processData
+from utils import result
 
 
-pos_dir = "./data/rt-polaritydata/rt-polarity.pos"
-neg_dir = "./data/rt-polaritydata/rt-polarity.neg"
+rootPath = "/mnt/hgfs/data/senitment_data"
+test_path = os.path.join(rootPath, "test.csv")
+word2vecPath = os.path.join(rootPath, "model/word2vecmodel.m")
 
-ch_pos_dir = "../Data/input/pos.xls"
-ch_neg_dir = "../Data/input/neg.xls"
 
-# Data Parameters
-tf.flags.DEFINE_string("positive_data_file", ch_pos_dir, "Data source for the positive data.")
-tf.flags.DEFINE_string("negative_data_file", ch_neg_dir, "Data source for the positive data.")
+def getRecentFile(rootPath):
+    filenames = os.listdir(rootPath)
+    recentfile = "0"
+    for filename in filenames:
+        print filename
+        try:
+            if int(filename) > int(recentfile):
+                recentfile = filename
+        except:
+            continue
+    return os.path.join(rootPath,recentfile)
+
+recentFile = getRecentFile(os.path.join(rootPath,"runs/"))
+print recentFile
+
 
 # Eval Parameters
-tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
-tf.flags.DEFINE_string("checkpoint_dir", "runs/20170712120455", "Checkpoint directory from training run")
+tf.flags.DEFINE_integer("batch_size", 128, "Batch Size (default: 64)")
+tf.flags.DEFINE_string("checkpoint_dir", recentFile, "Checkpoint directory from training run")
 tf.flags.DEFINE_boolean("eval_train", False, "Evaluate on all training data")
 
 # Misc Parameters
@@ -45,37 +51,12 @@ print("\nParameters:")
 for attr, value in sorted(FLAGS.__flags.items()):
     print("{}={}".format(attr.upper(), value))
 print("")
-# x_evluate = []
+
+testData = pd.read_csv(test_path, sep = "\t")
+x_evluate = testData["text"]
 
 
-# print data[0]
-
-x_evluate = []
-
-
-argvs_lenght = len(sys.argv)
-
-dataclass = w2vProcessData.ProcessData()
-
-# CHANGE THIS: Load data. Load your own data here
-if FLAGS.eval_train:
-    # x_raw, y_test = dataclass.load_data_and_labels(FLAGS.positive_data_file, FLAGS.negative_data_file)
-    # y_test = np.argmax(y_test, axis=1)
-    pass
-else:
-    # x_raw = ["a masterpiece four years in the making", "everything is off."]
-    if argvs_lenght == 2:
-        sentence = sys.argv[-1]
-        x_evluate.append(sentence)
-    else:
-        x_evluate = [u"这东西挺好的",u"这太坑了",u"太差了",u"王者荣耀还什么5v5公平对战手游",
-                     u"体验不好",u"这东西不坑",u"英雄伤害挺高的", u"吊炸了",u"吊炸天"]
-        # x_evluate = data
-
-
-    # y_test = y_evaluate
-
-
+dataclass = processData.ProcessData(test_path, word2vecPath)
 x_test = dataclass.getTestDataX(x_evluate)
 
 print("\nEvaluating...\n")
@@ -117,11 +98,10 @@ with graph.as_default():
 
 
 print all_predictions
-# predictions_human_readable = np.column_stack((np.array(data), all_predictions))
-# out_path = os.path.join(FLAGS.checkpoint_dir, "..", "predictiontocsv.csv")
-# pd.DataFrame(predictions_human_readable).to_csv(out_path,index=False, sep="\t", header= False)
-# print("Saving evaluation to {0}".format(out_path))
-# with open(out_path, 'w') as f:
+
+def showResult():
+    result.printMultiResult(testData["score"], all_predictions)
+
 
 
 
