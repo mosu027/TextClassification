@@ -26,7 +26,7 @@ print train_path
 print word2vecPath
 
 # Data loading params
-tf.flags.DEFINE_float("dev_sample_percentage", .05, "Percentage of the training data to use for validation")
+tf.flags.DEFINE_float("dev_sample_percentage", .1, "Percentage of the training data to use for validation")
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("embedding_dim", 100, "Dimensionality of character embedding (default: 128)")
@@ -59,7 +59,7 @@ print("")
 # Load data
 print("Loading data...")
 
-dataclass = processData.ProcessData(train_path, word2vecPath)
+dataclass = processData.ProcessData(train_path, word2vecPath, FLAGS.dev_sample_percentage)
 embedding_weights, x_train, x_dev, y_train, y_dev = dataclass.getTrainData()
 
 print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))

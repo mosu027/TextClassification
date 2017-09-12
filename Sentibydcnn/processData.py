@@ -32,7 +32,7 @@ class processData():
         y = list(data["score"])
         test_size = int(np.round(0.10* len(y)))
 
-        x_text = [list(jieba.cut(x)) for x in x_text]
+        x_text = [list(jieba.cut(str(x))) for x in x_text]
         all_label = dict()
         for label in y:
             if not label in all_label:
@@ -53,8 +53,11 @@ class processData():
             sentence = sentences[i]
             if len(sentence) <= sequence_length:
                 num_padding = sequence_length - len(sentence)
-                new_sentence = sentence + [padding_word] * num_padding
-                padded_sentences.append(new_sentence)
+                sentence.extend([padding_word] * num_padding)
+                if len(sentence) == sequence_length:
+                    padded_sentences.append(sentence)
+                else:
+                    print "error:",i
             else:
                 padded_sentences.append(sentence[-sequence_length:])
         return padded_sentences
@@ -91,9 +94,10 @@ class processData():
         sentences, labels, test_size = self.load_data_and_labels()
         sentences_padded = self.pad_sentences(sentences)
 
+
         vocabulary, vocabulary_inv = self.build_vocab(sentences_padded)
         x, y = self.build_input_data(sentences_padded, labels, vocabulary)
-        print x[0]
+        # print x[0]
         return [x, y, vocabulary, vocabulary_inv, test_size]
 
 
@@ -104,10 +108,22 @@ class processData():
 
         sentences, labels, test_size = self.load_data_and_labels()
         sentences_padded = self.pad_sentences(sentences)
+
+        print "len_pad",len(sentences_padded)
         vocabulary, vocabulary_inv = self.build_vocab(sentences_padded)
 
-        dev_x = np.array([[vocabulary[word] for word in sentence] for sentence in dev_sent_padded])
-        return dev_x
+        # dev_x = np.array([[vocabulary[word] for word in sentence] for sentence in dev_sent_padded])
+        dev_x = []
+        for sentence in dev_sent_padded:
+            temp = []
+            for word in sentence:
+                try:
+                    temp.append(vocabulary[word])
+                except:
+                    continue
+            dev_x.append(temp)
+
+        return np.array(dev_x)
 
 
     def batch_iter(self, data, batch_size, num_epochs):

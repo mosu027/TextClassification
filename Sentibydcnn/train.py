@@ -11,7 +11,7 @@ ws = [7, 5]
 top_k = 4
 k1 = 19
 num_filters = [10, 14]
-dev = 2000
+# dev = 2000
 batch_size = 50
 n_epochs = 30
 num_hidden = 100
@@ -21,7 +21,9 @@ lr = 0.01
 evaluate_every = 100
 checkpoint_every = 100
 num_checkpoints = 5
-trainPath = "../Data/data.csv"
+
+rootPath = "/mnt/hgfs/data/senitment_data"
+trainPath = os.path.join(rootPath, "train.csv")
 
 
 datapreprocess = processData.processData(trainPath,sentence_length)
@@ -36,16 +38,17 @@ x_, y_, vocabulary, vocabulary_inv, test_size = datapreprocess.load_data()
 #test_size:500,测试集大小
 
 # Randomly shuffle data
-x, x_test = x_[:-test_size], x_[-test_size:]
-y, y_test = y_[:-test_size], y_[-test_size:]
-shuffle_indices = np.random.permutation(np.arange(len(y)))
-x_shuffled = x[shuffle_indices]
-y_shuffled = y[shuffle_indices]
+# x, x_test = x_[:-test_size], x_[-test_size:]
+# y, y_test = y_[:-test_size], y_[-test_size:]
+shuffle_indices = np.random.permutation(np.arange(len(y_)))
+x_shuffled = x_[shuffle_indices]
+y_shuffled = y_[shuffle_indices]
 
-x_train, x_dev = x_shuffled[:-dev], x_shuffled[-dev:]
-y_train, y_dev = y_shuffled[:-dev], y_shuffled[-dev:]
+dev_size = int(len(x_shuffled)*0.05)
+x_train, x_dev = x_shuffled[:-dev_size], x_shuffled[-dev_size:]
+y_train, y_dev = y_shuffled[:-dev_size], y_shuffled[-dev_size:]
 
-print("Train/Dev/Test split: {:d}/{:d}/{:d}".format(len(y_train), len(y_dev), len(y_test)))
+print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
 #--------------------------------------------------------------------------------------#
 
 def init_weights(shape, name):
@@ -112,7 +115,7 @@ with tf.Session() as sess:
             .replace("-", "") \
             .replace(":", "") \
             .split(".")[0]
-    out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", curTime()))
+    out_dir = os.path.abspath(os.path.join(rootPath, "runs_dcnn", curTime()))
     print("Writing to {}\n".format(out_dir))
 
     # Summaries for loss and accuracy
@@ -190,6 +193,6 @@ with tf.Session() as sess:
             print 'Best of valid = {}, at step {}'.format(max_acc, best_at_step)
 
     saver.restore(sess, checkpoint_prefix + '-' + str(best_at_step))
-    print 'Finish training. On test set:'
-    acc, loss = dev_step(x_test, y_test, writer=None)
-    print acc, loss
+    # print 'Finish training. On test set:'
+    # acc, loss = dev_step(x_test, y_test, writer=None)
+    # print acc, loss

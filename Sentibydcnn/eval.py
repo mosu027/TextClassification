@@ -7,7 +7,12 @@ import os
 import tensorflow as tf
 import processData
 import numpy as np
+import pandas as pd
 
+from utils import result
+
+
+rootPath = "/mnt/hgfs/data/senitment_data"
 
 def getRecentFile(rootPath):
     filenames = os.listdir(rootPath)
@@ -21,12 +26,12 @@ def getRecentFile(rootPath):
             continue
     return os.path.join(rootPath,recentfile)
 
-recentFile = getRecentFile("runs/")
+recentFile = getRecentFile(os.path.join(rootPath,"runs_dcnn"))
 print recentFile
 
 
-
-trainPath = "../Data/data.csv"
+trainPath = os.path.join(rootPath, "train.csv")
+testPath = os.path.join(rootPath, "test.csv")
 sentence_length = 100
 
 
@@ -51,13 +56,17 @@ print("")
 # x_evaluate = list(data["content"])
 # x_evluate = data
 
-x_evaluate = [u"这游戏玩的不爽",u"这皮肤太好看了",u"这英雄特别叼",u"这英雄伤害不高",u"嗯嗯",u"这样啊"]
+# x_evaluate = [u"这游戏玩的不爽",u"这皮肤太好看了",u"这英雄特别叼",u"这英雄伤害不高",u"嗯嗯",u"这样啊"]
 
 
 
 datapreprocess = processData.processData(trainPath,sentence_length)
 
 
+testData = pd.read_csv(testPath, sep = "\t")
+x_evaluate = testData["text"]
+
+print len(x_evaluate), ":",len(testData["score"])
 x_test = datapreprocess.preprocess_dev_data(x_evaluate)
 
 print("\nEvaluating...\n")
@@ -101,4 +110,7 @@ with graph.as_default():
             all_predictions = np.concatenate([all_predictions, batch_predictions])
 
 
-print all_predictions
+print len(all_predictions)
+
+# def showResult():
+#     result.printMultiResult(testData["score"], all_predictions)

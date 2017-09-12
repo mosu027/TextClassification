@@ -28,11 +28,12 @@ cpu_count = multiprocessing.cpu_count()
 
 class ProcessData():
 
-    def __init__(self, trainPath, w2vModelPath):
+    def __init__(self, trainPath, w2vModelPath, dev_rate=0.1):
 
         self.tranPath = trainPath
         self.w2vModelPath = w2vModelPath
         self.vocabmaxlen = 100
+        self.dev_rate = dev_rate
 
 
 
@@ -119,7 +120,7 @@ class ProcessData():
         embedding_weights = np.zeros((n_symbols, vocab_dim))  # 索引为0的词语，词向量全为0
         for word, index in w2indx.items():  # 从索引为1的词语开始，对每个词语对应其词向量
             embedding_weights[index, :] = w2vec[word]
-        x_train, x_test, y_train, y_test = train_test_split(trainX, Y, test_size=0.10)
+        x_train, x_test, y_train, y_test = train_test_split(trainX, Y, test_size=self.dev_rate)
 
         print "embedding_weights",len(embedding_weights),len(embedding_weights[0])
 

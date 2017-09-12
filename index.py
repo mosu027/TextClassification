@@ -11,5 +11,11 @@
 # model.main()
 
 
-from SentiByCNNWord2vec import eval
-eval.showResult()
+# from SentiByCNNWord2vec import eval
+# eval.showResult()
+
+# from Sentibydcnn import eval
+# eval.showResult()
+
+from Sentibyrule import eval
+eval.main()
