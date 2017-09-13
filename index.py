@@ -18,5 +18,12 @@
 # from Sentibyrule import eval
 # eval.main()
 
-from SentiByCNNIndex import eval
-eval.showResult()
+# from SentiByCNNIndex import eval
+# eval.showResult()
+
+
+
+from SentiByBasicLSTM import basicLSTM
+basicLSTM.evaluate()
+# basicLSTM.train()
+# basicLSTM.lstm_predict("漂亮")
