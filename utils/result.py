@@ -6,6 +6,7 @@
 
 from sklearn import metrics
 from sklearn.metrics import accuracy_score, log_loss
+import datetime
 
 
 
@@ -41,25 +42,30 @@ def printMultiResult(y_true, y_pred):
     print   "confusion_matrix:"
     print   confusion_matrix
 
-    resultStr = "confusion_matrix" + "\n" +\
+    resultStr = "Accuracy: {:.4%}".format(acc) +"\n" +\
+                "confusion_matrix:" + "\n" +\
                 str(confusion_matrix) + "\n"
     return resultStr
 
 
 
-def saveResult(savePath, time, timeconsuming, method, param, description, result):
+def saveResult(savePath, description, result, timeconsuming = None, method=None, param =None):
 
     with open(savePath, "a+") as f:
-        time = "Time: " + time + "\n"
+        time = "Time: " + str(datetime.datetime.now()) + "\n"
         f.write(time)
-        timeconsuming = "Timeconsuming: " + str(timeconsuming) + "\n"
-        f.write(timeconsuming)
-        method = "Method: " + method + "\n"
-        f.write(method)
-        param = "parma: " + param + "\n"
-        f.write(param)
         description = "description: " + description + "\n"
         f.write(description)
+        if timeconsuming != None:
+            timeconsuming = "Timeconsuming: " + str(timeconsuming) + "\n"
+            f.write(timeconsuming)
+        if  method !=None:
+            method = "Method: " + method + "\n"
+            f.write(method)
+        if param !=None:
+            param = "parma: " + param + "\n"
+            f.write(param)
+
         result = "result: " + result + "\n"
         f.write(result)
 

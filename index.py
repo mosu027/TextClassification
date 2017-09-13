@@ -5,17 +5,18 @@
 
 
 # from TextByTfidfWord2vec import tfidfWord2vecMain
-#
-#
 # model = tfidfWord2vecMain.TfidfWord2vecMoodel()
 # model.main()
 
 
 # from SentiByCNNWord2vec import eval
 # eval.showResult()
-
+#
 # from Sentibydcnn import eval
 # eval.showResult()
+#
+# from Sentibyrule import eval
+# eval.main()
 
-from Sentibyrule import eval
-eval.main()
+from SentiByCNNIndex import eval
+eval.showResult()

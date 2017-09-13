@@ -36,7 +36,7 @@ sentence_length = 100
 
 
 # Eval Parameters
-tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
+tf.flags.DEFINE_integer("batch_size", 32, "Batch Size (default: 64)")
 tf.flags.DEFINE_string("checkpoint_dir", recentFile, "Checkpoint directory from training run")
 tf.flags.DEFINE_boolean("eval_train", False, "Evaluate on all training data")
 
@@ -52,26 +52,18 @@ for attr, value in sorted(FLAGS.__flags.items()):
     print("{}={}".format(attr.upper(), value))
 print("")
 
-# data = pd.read_csv("../Data/chatcontenttest.csv",header=None,names=["id","content"])
-# x_evaluate = list(data["content"])
-# x_evluate = data
-
 # x_evaluate = [u"这游戏玩的不爽",u"这皮肤太好看了",u"这英雄特别叼",u"这英雄伤害不高",u"嗯嗯",u"这样啊"]
-
-
 
 datapreprocess = processData.processData(trainPath,sentence_length)
 
+testData = pd.read_csv(testPath, sep = "\t",encoding="utf-8")
+x_evaluate = list(testData["text"])
 
-testData = pd.read_csv(testPath, sep = "\t")
-x_evaluate = testData["text"]
-
-print len(x_evaluate), ":",len(testData["score"])
 x_test = datapreprocess.preprocess_dev_data(x_evaluate)
 
-print("\nEvaluating...\n")
+x_evaluate = [list(x) for x in x_test]
 
-
+data = pd.DataFrame(x_test)
 
 
 # Evaluation
@@ -100,7 +92,7 @@ with graph.as_default():
 
         # Generate batches for one epoch
 
-        batches = datapreprocess.batch_iter(list(x_test), FLAGS.batch_size, 1)
+        batches = datapreprocess.batch_iter(x_test, FLAGS.batch_size, 1, False)
 
         # Collect the predictions here
         all_predictions = []
@@ -111,6 +103,9 @@ with graph.as_default():
 
 
 print len(all_predictions)
-
-# def showResult():
-#     result.printMultiResult(testData["score"], all_predictions)
+print all_predictions
+def showResult():
+    save_path = "doc/result.txt"
+    desc = "dcnn "
+    result_str = result.printMultiResult(testData["score"], all_predictions)
+    result.saveResult(save_path,desc, result_str)

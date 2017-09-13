@@ -1,0 +1,50 @@
+Time: 2017-09-13 11:55:03.534616
+description: text_cnn with word2vec
+result: Accuracy: 82.6835%
+confusion_matrix
+[[1604  285   86]
+ [ 240 2469  336]
+ [  51  321 2225]]
+
+Time: 2017-09-13 15:03:53.807933
+description: text_cnn with textcnn_index
+result: Accuracy: 81.2787%
+confusion_matrix:
+[[1566  307  102]
+ [ 189 2511  345]
+ [  71  412 2114]]
+
+Time: 2017-09-13 11:59:48.388937
+description: dcnn 
+result: Accuracy: 81.6332%
+confusion_matrix:
+[[1559  317   99]
+ [ 248 2472  325]
+ [  44  366 2187]]
+
+Time: 2017-09-13 12:03:04.905000
+description: sentiment by rule 
+result: Accuracy: 58.7764%
+confusion_matrix:
+[[ 902   65 1008]
+ [ 131 1320 1594]
+ [  83  259 2255]]
+
+Time: 2017-09-13 13:57:28.588000
+description: sentiment by tfidf 
+result: Accuracy: 74.1105%
+confusion_matrix:
+[[1413  419  143]
+ [ 360 2292  393]
+ [  65  592 1940]]
+
+Time: 2017-09-13 14:03:42.466000
+description: sentiment by tfidf 
+result: Accuracy: 67.6250%
+confusion_matrix:
+[[1280  533  162]
+ [ 613 1947  485]
+ [  98  575 1924]]
+
+
+

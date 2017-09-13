@@ -31,7 +31,13 @@ def evaluate_testData(xtest, ytest):
         else:
             ypred.append(2)
 
-    result.printMultiResult(ytest, ypred)
+    # result.printMultiResult(ytest, ypred)
+
+    save_path = "doc/result.txt"
+    desc = "sentiment by rule "
+    result_str = result.printMultiResult(ytest, ypred)
+    result.saveResult(save_path,desc, result_str)
+
 
 def main():
     rootPath = "E:\workout\data\senitment_data"

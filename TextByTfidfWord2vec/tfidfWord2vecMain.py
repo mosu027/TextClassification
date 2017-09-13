@@ -24,8 +24,8 @@ class TfidfWord2vecMoodel():
     def __init__(self):
 
         self.boolpreword2vec = False
-        self.boolword2vec = False
-        self.booltfidf = True
+        self.boolword2vec = True
+        self.booltfidf = False
         self.rootPath = "E:\workout\data\senitment_data"
         self.resultpath = os.path.join(self.rootPath, "result_" + self.curTime() + ".csv")
         self.trainPath = os.path.join(self.rootPath, "train.csv")

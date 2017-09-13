@@ -81,7 +81,7 @@ class senti_rule_model():
 
     def splitWord(self, content):
 
-        segs = pseg.cut(content)
+        segs = pseg.cut(str(content))
         result = []
         for word,type in segs:
             WORD = Word()

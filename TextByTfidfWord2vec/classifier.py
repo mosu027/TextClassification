@@ -55,7 +55,12 @@ def trainModel(xtrain, xtest, ytrain, ytest):
         print("Log Loss: {}".format(ll))
 
         # printResult(ytest, train_predictions)
-        result.printMultiResult(ytest, train_predictions)
+        # result.printMultiResult(ytest, train_predictions)
+
+        save_path = "doc/result.txt"
+        desc = "sentiment by tfidf "
+        result_str = result.printMultiResult(ytest, train_predictions)
+        result.saveResult(save_path, desc, result_str)
 
 
         #

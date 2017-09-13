@@ -1,22 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Time    : 2017/7/7 15:39
-# @Author  : Peng
-
+# @Time    : 2017/9/13 14:06
+# @Author  : Su.
 
 import tensorflow as tf
+import sys
+import os
+import processData
+import jieba
+from tensorflow.contrib import learn
 import numpy as np
 import pandas as pd
-import os
-
-import sys
-import processData
 from utils import result
+
 
 
 rootPath = "/mnt/hgfs/data/senitment_data"
 test_path = os.path.join(rootPath, "test.csv")
-word2vecPath = os.path.join(rootPath, "model/word2vecmodel.m")
+
 
 
 def getRecentFile(rootPath):
@@ -31,12 +32,13 @@ def getRecentFile(rootPath):
             continue
     return os.path.join(rootPath,recentfile)
 
-recentFile = getRecentFile(os.path.join(rootPath,"runs/"))
+recentFile = getRecentFile(os.path.join(rootPath,"runs_textcnn_index/"))
 print recentFile
 
 
+
 # Eval Parameters
-tf.flags.DEFINE_integer("batch_size", 128, "Batch Size (default: 64)")
+tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
 tf.flags.DEFINE_string("checkpoint_dir", recentFile, "Checkpoint directory from training run")
 tf.flags.DEFINE_boolean("eval_train", False, "Evaluate on all training data")
 
@@ -52,15 +54,23 @@ for attr, value in sorted(FLAGS.__flags.items()):
     print("{}={}".format(attr.upper(), value))
 print("")
 
-testData = pd.read_csv(test_path, sep = "\t")
-x_evluate = testData["text"]
+
+testData = pd.read_csv(test_path,sep="\t")
+x_evaluate = list(testData["text"])
+argvs_lenght = len(sys.argv)
 
 
-dataclass = processData.ProcessData(test_path, word2vecPath)
-x_test = dataclass.getTestDataX(x_evluate)
+x_raw = [" ".join(list(jieba.cut(str(x)))) for x in x_evaluate]
+
+# Map data into vocabulary
+vocab_path = os.path.join(FLAGS.checkpoint_dir, "", "vocab")
+
+print "vocab_path",vocab_path
+
+vocab_processor = learn.preprocessing.VocabularyProcessor.restore(vocab_path)
+x_test = np.array(list(vocab_processor.transform(x_raw)))
 
 print("\nEvaluating...\n")
-
 
 # Evaluation
 # ==================================================
@@ -87,7 +97,7 @@ with graph.as_default():
         predictions = graph.get_operation_by_name("output/predictions").outputs[0]
 
         # Generate batches for one epoch
-        batches = dataclass.batch_iter(list(x_test), FLAGS.batch_size, 1, shuffle=False)
+        batches = processData.batch_iter(list(x_test), FLAGS.batch_size, 1, shuffle=False)
 
         # Collect the predictions here
         all_predictions = []
@@ -96,16 +106,10 @@ with graph.as_default():
             batch_predictions = sess.run(predictions, {input_x: x_test_batch, dropout_keep_prob: 1.0})
             all_predictions = np.concatenate([all_predictions, batch_predictions])
 
-
 print all_predictions
 
 def showResult():
     save_path = "doc/result.txt"
-    desc = "text_cnn with word2vec"
+    desc = "text_cnn with textcnn_index"
     result_str = result.printMultiResult(testData["score"], all_predictions)
     result.saveResult(save_path,desc, result_str)
-
-
-
-
-

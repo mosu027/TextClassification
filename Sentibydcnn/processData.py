@@ -10,7 +10,9 @@ import numpy as np
 import re
 import pandas as pd
 import jieba
-
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 
 class processData():
@@ -33,14 +35,16 @@ class processData():
         test_size = int(np.round(0.10* len(y)))
 
         x_text = [list(jieba.cut(str(x))) for x in x_text]
-        all_label = dict()
-        for label in y:
-            if not label in all_label:
-                all_label[label] = len(all_label) + 1
-        one_hot = np.identity(len(all_label))
-        y = [one_hot[ all_label[label]-1 ] for label in y]
+        trainY = []
+        for score in list(data["score"]):
+            if score == 0:
+                trainY.append([1, 0, 0])
+            elif score == 1:
+                trainY.append([0, 1, 0])
+            else:
+                trainY.append([0, 0, 1])
 
-        return [x_text, y, test_size]
+        return [x_text, trainY, test_size]
 
     def pad_sentences(self, sentences, padding_word="<PAD/>"):
         """
@@ -53,13 +57,14 @@ class processData():
             sentence = sentences[i]
             if len(sentence) <= sequence_length:
                 num_padding = sequence_length - len(sentence)
-                sentence.extend([padding_word] * num_padding)
-                if len(sentence) == sequence_length:
-                    padded_sentences.append(sentence)
+                newsentence = sentence +[padding_word] * num_padding
+                if len(newsentence) == sequence_length:
+                    padded_sentences.append(newsentence)
                 else:
                     print "error:",i
             else:
                 padded_sentences.append(sentence[-sequence_length:])
+                # print len(sentence[:sequence_length])
         return padded_sentences
 
     def build_vocab(self, sentences):
@@ -102,7 +107,7 @@ class processData():
 
 
     def preprocess_dev_data(self, devdata):
-        devdata = [list(jieba.cut(x)) for x in devdata]
+        devdata = [list(jieba.cut(str(x))) for x in devdata]
         dev_sent_padded = self.pad_sentences(devdata)
 
 
@@ -119,14 +124,19 @@ class processData():
             for word in sentence:
                 try:
                     temp.append(vocabulary[word])
+
                 except:
                     continue
+            if len(temp) < 100:
+                diff = 100- len(temp)
+                temp = temp + [0]*diff
+                # dev_x.append(np.array(temp))
             dev_x.append(temp)
 
         return np.array(dev_x)
 
 
-    def batch_iter(self, data, batch_size, num_epochs):
+    def batch_iter(self, data, batch_size, num_epochs, shuffle = True):
         """
         Generates a batch iterator for a dataset.
         """
@@ -135,12 +145,15 @@ class processData():
         num_batches_per_epoch = int(len(data)/batch_size) + 1
         for epoch in range(num_epochs):
             # Shuffle the data at each epoch
-            shuffle_indices = np.random.permutation(np.arange(data_size))
-            shuffled_data = data[shuffle_indices]
+            if shuffle:
+                shuffle_indices = np.random.permutation(np.arange(data_size))
+                shuffled_data = data[shuffle_indices]
+            else:
+                shuffled_data = data
             for batch_num in range(num_batches_per_epoch):
                 start_index = batch_num * batch_size
                 end_index = (batch_num + 1) * batch_size
                 if end_index > data_size:
                     end_index = data_size
-                    start_index = end_index - batch_size
+                    # start_index = end_index - batch_size
                 yield shuffled_data[start_index:end_index]
