@@ -46,29 +46,27 @@ confusion_matrix:
  [ 613 1947  485]
  [  98  575 1924]]
 
-
-
-Time: 2017-09-13 18:12:33.305835
-description: basic lstm
-result: Accuracy: 39.9764%
+Time: 2017-09-14 10:29:58.344461
+description: basic lstm ,epoch = 4
+result: Accuracy: 37.1406%
 confusion_matrix:
-[[   0 1975    0]
- [   0 3045    0]
- [   0 2597    0]]
+[[ 463  974  538]
+ [ 553 1325 1167]
+ [ 481 1075 1041]]
 
-Time: 2017-09-13 19:02:31.338109
+Time: 2017-09-14 11:03:57.610395
 description: basic lstm
-result: Accuracy: 25.9288%
+result: Accuracy: 35.1713%
 confusion_matrix:
-[[1975    0    0]
- [3045    0    0]
- [2597    0    0]]
+[[ 768  783  424]
+ [1017 1115  913]
+ [ 903  898  796]]
 
-Time: 2017-09-13 19:19:18.271959
+Time: 2017-09-14 11:51:28.731606
 description: basic lstm
-result: Accuracy: 25.9288%
+result: Accuracy: 39.3987%
 confusion_matrix:
-[[1975    0    0]
- [3045    0    0]
- [2597    0    0]]
+[[   8 1633  334]
+ [   8 2423  614]
+ [  10 2017  570]]
 

@@ -49,7 +49,7 @@ n_iterations = 5  # ideally more..
 n_exposures = 10
 window_size = 7
 batch_size = 32
-n_epoch = 5
+n_epoch = 10
 input_length = 100
 cpu_count = multiprocessing.cpu_count()
 
@@ -158,7 +158,7 @@ def train_lstm(n_symbols,embedding_weights,x_train,y_train,x_test,y_test):
                         mask_zero=True,
                         weights=[embedding_weights],
                         input_length=input_length))  # Adding Input Length
-    model.add(LSTM(output_dim=50, activation='sigmoid', inner_activation='hard_sigmoid'))
+    model.add(LSTM(output_dim=50, activation='relu', inner_activation='hard_sigmoid'))
     model.add(Dropout(0.5))
     # model.add(Dense(1))
     # model.add(Activation('sigmoid'))
@@ -243,22 +243,18 @@ def evaluate():
     testX = list(testData["text"])
     y_pred = []
     print testX[0]
-    index = 0
     for i in xrange(len(testData)):
-        index += 1
-        if index >5:
-            break
 
-        data=input_transform(str(testX[0]))
+
+        data=input_transform(str(testX[i]))
         data.reshape(1,-1)
         pred_value = model.predict_classes(data)
         y_pred.append(pred_value[0])
 
-    print y_pred
-    # save_path = "doc/result.txt"
-    # desc = "basic lstm"
-    # result_str = result.printMultiResult(testData["score"], y_pred)
-    # result.saveResult(save_path,desc, result_str)
+    save_path = "doc/result.txt"
+    desc = "basic lstm"
+    result_str = result.printMultiResult(testData["score"], y_pred)
+    result.saveResult(save_path,desc, result_str)
 
 
 
@@ -273,11 +269,11 @@ if __name__=='__main__':
     # string='牛逼的手机，从3米高的地方摔下去都没坏，质量非常好'
     # string='酒店的环境非常好，价格也便宜，值得推荐'
     # string='手机质量太差了，傻逼店家，赚黑心钱，以后再也不会买了'
-    # string='我是傻逼'
+    string='我是傻逼'
     # string='一般般'
     # string='屏幕较差，拍照也很粗糙。'
     # string='质量不错，是正品 ，安装师傅也很好，才要了83元材料费'
-    string='喜欢'
+    # string='喜欢'
     # train()
 
     # evaluate_result()

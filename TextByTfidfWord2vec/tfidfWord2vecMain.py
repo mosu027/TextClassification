@@ -27,12 +27,10 @@ class TfidfWord2vecMoodel():
         self.boolword2vec = True
         self.booltfidf = False
         self.rootPath = "E:\workout\data\senitment_data"
-        self.resultpath = os.path.join(self.rootPath, "result_" + self.curTime() + ".csv")
         self.trainPath = os.path.join(self.rootPath, "train.csv")
         self.testPath = os.path.join(self.rootPath, "test.csv")
         self.dataAllPath = os.path.join(self.rootPath, "data20170908.csv")
         self.stopwords_path = "Conf/stopwords.txt"
-        print self.trainPath
         self.word2vecModelPath = os.path.join(self.rootPath, "model/word2vecmodel.m")
 
 
@@ -78,18 +76,18 @@ class TfidfWord2vecMoodel():
         print list(set(ytest))
 
         if self.booltfidf == True:
+            print "classify with tfidf......"
             xtrain, xtest = tfidf_feature.tfidf_feature(xtrain, xtest, self.stopwords_path)
             classifier.trainModel(xtrain, xtest, ytrain, ytest)
         elif self.boolword2vec== True:
+            print "classify with word2vec......"
             important_words = None
             xtrain = word2vec_feature.word2vec_feature(xtrain, important_words, self.word2vecModelPath)
             xtest = word2vec_feature.word2vec_feature(xtest, important_words, self.word2vecModelPath)
             classifier.trainModel(xtrain, xtest, ytrain, ytest)
         elif self.boolpreword2vec == True:
-
-            "train word2vecmodel..."
+            print "train word2vecmodel..."
             data = self.load_dataAll()
-            print len(data[0])
             word2vec_feature.train_word2vec_model(data[0], self.word2vecModelPath)
 
 
