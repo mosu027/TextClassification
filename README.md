@@ -4,19 +4,27 @@
 results of methods are in doc/result.txt
 
 to be continued：  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;charCNN
+&emsp;&emsp;charCNN  
+&emsp;&emsp;CLSTM  
+&emsp;&emsp;basicLSTM
 
 Finished:  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;all except above
+&emsp;&emsp;all except above
 
 
 
-example
+
  
 if train:  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cd SentiByCNNWord2vec  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;python train.py
+&emsp;&emsp;cd SentiByCNNWord2vec  
+&emsp;&emsp;python train.py
 
 if test:  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;python index.py
+&emsp;&emsp;python index.py  
 
+
+
+#### Reference
+
+https://github.com/zackhy/TextClassification  
+https://github.com/lc222/Dynamic-CNN-Sentence-Classification-TF

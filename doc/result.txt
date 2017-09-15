@@ -39,7 +39,7 @@ confusion_matrix:
  [  65  592 1940]]
 
 Time: 2017-09-13 14:03:42.466000
-description: sentiment by tfidf 
+description: sentiment by word2vec 
 result: Accuracy: 67.6250%
 confusion_matrix:
 [[1280  533  162]
@@ -55,18 +55,18 @@ confusion_matrix:
  [ 481 1075 1041]]
 
 Time: 2017-09-14 11:03:57.610395
-description: basic lstm
+description: basic lstm, epoch = 10
 result: Accuracy: 35.1713%
 confusion_matrix:
 [[ 768  783  424]
  [1017 1115  913]
  [ 903  898  796]]
 
-Time: 2017-09-14 11:51:28.731606
-description: basic lstm
-result: Accuracy: 39.3987%
+Time: 2017-09-15 10:43:39.294150
+description: text_cnn with word2vec,num_filters=256
+Accuracy: 82.2371%
 confusion_matrix:
-[[   8 1633  334]
- [   8 2423  614]
- [  10 2017  570]]
+[[1551  333   91]
+ [ 245 2491  309]
+ [  47  328 2222]]
 
