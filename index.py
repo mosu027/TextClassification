@@ -24,6 +24,6 @@
 
 
 from SentiByBasicLSTM import basicLSTM
-basicLSTM.evaluate()
-# basicLSTM.train()
+# basicLSTM.evaluate()
+basicLSTM.train()
 # basicLSTM.lstm_predict("漂亮")
