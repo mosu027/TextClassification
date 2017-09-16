@@ -8,11 +8,8 @@ import numpy as np
 
 
 def train_word2vec_model(data, word2vecModelPath):
-    print "Trainword2vecmodel..."
     model = Word2Vec(data, min_count=3,size=100)
     model.save(word2vecModelPath)
-
-
 
 
 def word2vec_feature(data, important_word, word2vecModelPath):

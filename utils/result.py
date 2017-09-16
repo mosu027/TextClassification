@@ -66,7 +66,7 @@ def saveResult(savePath, description, result, timeconsuming = None, method=None,
             param = "parma: " + param + "\n"
             f.write(param)
 
-        result = "result: " + result + "\n"
+        result = result + "\n"
         f.write(result)
 
     print "save result success!"

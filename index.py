@@ -11,7 +11,7 @@
 
 # from SentiByCNNWord2vec import eval
 # eval.showResult()
-#
+# #
 # from Sentibydcnn import eval
 # eval.showResult()
 #
@@ -23,7 +23,13 @@
 
 
 
-from SentiByBasicLSTM import basicLSTM
+
+# from SentiByBasicLSTM import basicLSTM
 # basicLSTM.evaluate()
-basicLSTM.train()
+# basicLSTM.train()
 # basicLSTM.lstm_predict("漂亮")
+
+
+# string = '根本不给送货上门！白花钱了！'
+# basicLSTM.lstm_predict(string)
+
